@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.legend.board.model.dao.FavoriteDao">
+
+	<!-- 모든 추천 조회 -->
+	<select id="searchFavorite" parameterType="SearchCondition" resultType="Favorite">
+		SELECT *
+		FROM favorite
+		<if test="key != 'none'">
+			WHERE ${key} LIKE CONCAT('%', #{word}, '%')
+		</if>
+		<if test="orderBy != 'none'">
+			ORDER BY ${orderBy} ${orderByDir}
+		</if>
+	</select>
+
+	<!-- 게시글 추천여부 조회 -->
+	<select id="checkFavorite" parameterType="Favorite" resultType="Favorite">
+		SELECT *
+		FROM favorite
+		WHERE boardNo = #{boardNo} AND userId = #{userId}
+	</select>
+
+	<!-- 게시글 추천 등록 -->
+	<insert id="insertFavorite" parameterType="Favorite">
+		INSERT INTO favorite (boardNo, userId)
+		VALUES (#{boardNo}, #{userId})
+	</insert>
+
+	<!-- 게시글 추천 삭제 -->
+	<delete id="deleteFavorite" parameterType="Favorite">
+		DELETE FROM favorite
+		WHERE boardNo = #{boardNo} AND userId = #{userId}
+	</delete>
+
+	<!-- 게시물 추천 수 증가 -->
+	<update id="increaseFavCount" parameterType="int">
+		UPDATE board
+		SET boardFavCount = boardFavCount + 1
+		WHERE boardNo = #{boardNo}
+	</update>
+
+	<!-- 게시물 추천 수 감소 -->
+	<update id="decreaseFavCount" parameterType="int">
+		UPDATE board
+		SET boardFavCount = boardFavCount - 1
+		WHERE boardNo = #{boardNo}
+	</update>
+	
+	<!-- 추천받은 유저 경험치 증가 -->
+	<update id="increaseUserExp" parameterType="String">
+		UPDATE user
+		SET userExp = userExp + 5
+		WHERE userId = #{userId}
+	</update>
+
+	<!-- 추천받은 유저 경험치 감소 -->
+	<update id="decreaseUserExp" parameterType="String">
+		UPDATE user
+		SET userExp = userExp - 5
+		WHERE userId = #{userId}
+	</update>
+
+	<!-- 특정 유저 조회 -->
+	<select id="selectOneUser" parameterType="String" resultType="User">
+		SELECT * 
+		FROM user 
+		WHERE userId = #{userId}
+	</select>
+
+	<!-- 특정 게시글 조회 -->
+	<select id="selectOneBoard" parameterType="int" resultType="Board">
+		SELECT * 
+		FROM board 
+		WHERE boardNo = #{boardNo}
+	</select>
+</mapper>

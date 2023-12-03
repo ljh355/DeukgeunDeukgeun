@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.legend.board.model.dao.BoardDao">
+	<!-- 게시글 조건 조회 -->
+	<select id="searchBoardList" resultType="Board" parameterType="SearchCondition">
+		SELECT *
+		FROM board
+		<if test="key != 'none'">
+			WHERE ${key} LIKE CONCAT('%', #{word}, '%')
+		</if>
+		<if test="orderBy != 'none'">
+			ORDER BY ${orderBy} ${orderByDir}
+		</if>
+	</select>
+	
+	<!-- 게시글 상세 조회 -->
+	<select id="selectOneBoard" parameterType="int" resultType="Board">
+		SELECT *
+		FROM board
+		WHERE boardNo = #{boardNo}
+	</select>
+
+	<!-- 게시글 등록 -->
+	<insert id="insertBoard" parameterType="Board">
+		INSERT INTO board (userId, userNickname, boardClassification, boardTitle, boardContent)
+		VALUES (#{userId}, #{userNickname}, #{boardClassification}, #{boardTitle}, #{boardContent})
+	</insert>
+
+	<!-- 게시글 수정 -->
+	<update id="updateBoard" parameterType="Board">
+		UPDATE board
+		SET boardTitle = #{boardTitle}, boardContent = #{boardContent}, 
+		boardRegDate = now(), boardModified = true
+		WHERE boardNo = #{boardNo}
+	</update>
+
+	<!-- 게시글 삭제 -->
+	<delete id="deleteBoard" parameterType="int">
+		DELETE FROM board
+		WHERE boardNo = #{boardNo}
+	</delete>
+
+	<!-- 게시글 조회수 증가 -->
+	<update id="updateViewCount" parameterType="int">
+		UPDATE board
+		SET boardViewCount = boardViewCount + 1
+		WHERE boardNo = #{boardNo}
+	</update>
+	
+	<!-- 글쓴 유저 경험치 증가 -->
+	<update id="increaseUserExp" parameterType="String">
+		UPDATE user
+		SET userExp = userExp + 5
+		WHERE userId = #{userId}
+	</update>
+
+	<!-- 글쓴 유저 경험치 감소 -->
+	<update id="decreaseUserExp" parameterType="String">
+		UPDATE user
+		SET userExp = userExp - 5
+		WHERE userId = #{userId}
+	</update>
+
+	<!-- 특정 유저 조회 -->
+	<select id="selectOneUser" parameterType="String" resultType="User">
+		SELECT * 
+		FROM user 
+		WHERE userId = #{userId}
+	</select>
+	
+	<!-- 게시물 수 조회 -->
+	<select id="countBoardList" parameterType="SearchCondition" resultType="int">
+		SELECT COUNT(*)
+		FROM board
+		<if test="key != 'none'">
+			WHERE ${key} LIKE CONCAT('%', #{word}, '%')
+		</if>
+		<if test="orderBy != 'none'">
+			ORDER BY ${orderBy} ${orderByDir}
+		</if>
+	</select>
+	
+	<!-- 유저의 게시물 조회 -->
+	<select id="searchMyBoardList" resultType="Board" parameterType="String">
+		SELECT *
+		FROM board
+		WHERE userId = #{userId}
+	</select>
+</mapper>

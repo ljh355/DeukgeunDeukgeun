@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.legend.board.model.dao.FriendRequestDao">
+	<!-- 친구신청 목록 검색하기 -->
+	<select id="searchFriendRequestList" parameterType="SearchCondition" resultType="FriendRequest">
+		SELECT *
+		FROM friendrequest
+		<if test="key != 'none'">
+			WHERE ${key} = #{word}
+		</if>
+		<if test="orderBy != 'none'">
+			ORDER BY ${orderBy} ${orderByDir}
+		</if>
+	</select>
+	
+	<!-- 어느 두 유저가 친구신청 진행 중인지 확인하기 -->
+	<select id="searchFriendRequest" parameterType="FriendRequest" resultType="FriendRequest">
+		SELECT *
+		FROM friendrequest
+		WHERE (userId = #{userId} AND friendId = #{friendId}) 
+		OR (userId = #{friendId} AND friendId = #{userId})
+	</select>
+		
+	<!-- 어느 두 유저가 친구관계인지 확인하기 -->
+	<select id="searchFriendConnection" parameterType="Friend" resultType="FriendRequest">
+		SELECT *
+		FROM friend
+		WHERE ((userId = #{userId} AND friendId = #{friendId}) 
+		OR (userId = #{friendId} AND friendId = #{userId}))
+	</select>
+	
+	<!-- 친구요청 -->
+	<insert id="insertFriendRequest" parameterType="FriendRequest">
+		INSERT INTO friendrequest (userId, userNickname, friendId, friendNickname)
+		VALUES (#{userId}, #{userNickname}, #{friendId}, #{friendNickname})
+	</insert>
+	
+	<!-- 친구요청 거부/취소 -->
+	<delete id="deleteFriendRequest" parameterType="FriendRequest">
+		DELETE FROM friendrequest
+		WHERE friendReqNo = #{friendReqNo}
+	</delete>
+
+	<!-- 특정 유저 조회 -->
+	<select id="selectOneUser" parameterType="String" resultType="User">
+		SELECT * 
+		FROM user 
+		WHERE userId = #{userId}
+	</select>
+</mapper>

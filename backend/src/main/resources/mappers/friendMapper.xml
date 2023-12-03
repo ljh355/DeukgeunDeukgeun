@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.legend.board.model.dao.FriendDao">
+	<!-- 모든 친구 조회 -->
+	<select id="searchFriendList" parameterType="SearchCondition" resultType="Friend">
+		SELECT *
+		FROM friend
+		<if test="key != 'none'">
+			WHERE ${key} = #{word}
+		</if>
+		<if test="orderBy != 'none'">
+			ORDER BY ${orderBy} ${orderByDir}
+		</if>
+	</select>
+	
+	<!-- friendNo로 친구 조회 -->
+	<select id="searchFriend" parameterType="int" resultType="Friend">
+		SELECT *
+		FROM friend
+		WHERE friendNo = #{friendNo}
+	</select>
+	
+	<!-- 친구 상대 조회 -->
+	<select id="searchFriendByUserId" parameterType="Friend" resultType="Friend">
+		SELECT *
+		FROM friend
+		WHERE userId = #{friendId} AND friendId = #{userId}
+	</select>
+	
+	<!-- 친구요청 DB에서 친구요청 찾기 -->
+	<select id="searchFriendReq" parameterType="int" resultType="FriendRequest">
+		SELECT *
+		FROM friendrequest
+		WHERE friendReqNo = #{friendReqNo}
+	</select>
+	
+	<!-- 친구 등록 -->
+	<insert id="insertFriend" parameterType="Friend">
+		INSERT INTO friend (userId, userNickname, friendId, friendNickname)
+		VALUES (#{userId}, #{userNickname}, #{friendId}, #{friendNickname})
+	</insert>
+	
+	<!-- 친구 삭제 -->
+	<delete id="deleteFriend" parameterType="int">
+		DELETE FROM friend
+		WHERE friendNo = #{friendNo}
+	</delete>
+	
+	<!-- 친구요청 삭제 -->
+	<delete id="deleteFriendRequest" parameterType="int">
+		DELETE FROM friendrequest
+		WHERE friendReqNo = #{friendReqNo}
+	</delete>
+	
+	<!-- 친구가 쓴 글 조회 -->
+	<select id="searchFriendBoardList" parameterType="String" resultType="Board">
+		SELECT B.*
+		FROM friend AS F INNER JOIN board AS B
+		WHERE F.userId = #{userId} AND F.friendId = B.userId
+	</select>
+	
+		<!-- 친구가 쓴 글 조회 -->
+	<select id="searchFriendCommentList" parameterType="String" resultType="Comment">
+		SELECT C.*
+		FROM friend AS F INNER JOIN comment AS C
+		WHERE F.userId = #{userId} AND F.friendId = C.userId
+	</select>
+</mapper>
